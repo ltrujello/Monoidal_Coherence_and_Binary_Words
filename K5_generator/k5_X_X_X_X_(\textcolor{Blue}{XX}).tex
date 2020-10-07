@@ -1,0 +1,192 @@
+\begin{center}
+     \begin{tikzcd}
+          &[-2cm]
+          &[-2.5cm]
+          &[-1cm]
+          X ((X  X)  (X  (\textcolor{Blue}{XX})))
+          \arrow[dll, swap, "1_{X}\otimes \alpha_{X X,X,(\textcolor{Blue}{XX})}"]
+          \arrow[drr, "\alpha_{X,X X,X (\textcolor{Blue}{XX})}"]
+          &[-1cm]
+          &[-2.5cm]
+          &[-2cm]
+          \\[0.2cm] % 1
+          &
+          X((( X  X ) X)  (\textcolor{Blue}{XX}))
+          \arrow[dddr, "\alpha_{X, X (X X), (\textcolor{Blue}{XX})}"]
+          &
+          &
+          \textcolor{Black!30!White}{\bullet}
+          \arrow[<-,Black!30!White, dashed,u]
+          &
+          &
+          (X (X  X))  (X  (\textcolor{Blue}{XX}))
+          \arrow[dr, "\alpha_{X,X,X}\otimes (1_{X} \otimes 1_{(\textcolor{Blue}{XX})})"]
+          \arrow[dddl, swap, "\alpha_{X (X X), X, (\textcolor{Blue}{XX})}"]
+          &
+          \\[0.4cm] % 2
+          X ((X  (X  X)) (\textcolor{Blue}{XX}))
+          \arrow[ur, "(1_{X} \otimes \alpha_{X,X,X})\otimes 1_{(\textcolor{Blue}{XX})}"]
+          \arrow[ddddr, swap, "\alpha_{X,X X X, (\textcolor{Blue}{XX})}"]
+          \arrow[<-, drr, dashed, Black!30!White]
+          &
+          &
+          &
+          &
+          &
+          &
+          ((X X)  X)  (X  (\textcolor{Blue}{XX}))
+          \arrow[<-, Black!30!White, dashed, dll]
+          \arrow[ddddl, "\alpha_{(X X) X, X, (\textcolor{Blue}{XX})}"]
+          \\[-0.7cm] %2.5
+          &
+          &
+          \textcolor{Black!30!White}{\bullet}
+          \arrow[<-, Black!30!White, dashed, uur]
+          &
+          &
+          \textcolor{Black!30!White}{\bullet}
+          \arrow[<-, Black!30!White, dashed, uul]
+          &
+          &
+          \\[0.2cm] % 3
+          &
+          &
+          (X ((X  X)  X))  (\textcolor{Blue}{XX})
+          \arrow[rr, "\alpha_{X, X X, X}\otimes 1_{(\textcolor{Blue}{XX})}"]
+          &
+          &
+          ((X (X  X)) X)  (\textcolor{Blue}{XX})
+          \arrow[ddr, swap, "(\alpha_{X,X,X}\otimes 1_{X})\otimes 1_{(\textcolor{Blue}{XX})}"]
+          &
+          &
+          \\[-0.7cm] %3.5
+          &
+          &
+          &
+          \textcolor{Black!30!White}{\bullet}
+          \arrow[<-, Black!30!White, dashed, uur]
+          \arrow[<-, Black!30!White, dashed, uul]
+          &
+          &
+          &
+          \\[0.4cm] % 4
+          &
+          (X (X  (X  X)))  (\textcolor{Blue}{XX})
+          \arrow[uur, swap, "(1_{X} \otimes \alpha_{X,X,X}) \otimes 1_{(\textcolor{Blue}{XX})}"]
+          \arrow[drr, swap, "\alpha_{X, X, X X} \otimes 1_{(\textcolor{Blue}{XX})}"]
+          &
+          &
+          &
+          &
+          (((X X)  X)  X)  (\textcolor{Blue}{XX})
+          &
+          \\[0.2cm] % 5
+          &
+          &
+          &
+          ((X X)  (X  X))  (\textcolor{Blue}{XX})
+          \arrow[urr, swap, "\alpha_{X X, X, X}\otimes 1_{(\textcolor{Blue}{XX})}"]
+          \arrow[<-, uu, dashed, Black!30!White]
+          &
+          &
+          &
+     \end{tikzcd}
+\end{center}
+\begin{center}
+     \begin{tikzcd}
+          &[-2cm]
+          &[-2.5cm]
+          &[-1cm]
+          X ((X  X)  (X  (\textcolor{Blue}{XX})))
+          \arrow[drr, "1_{X}\otimes \alpha_{X X,X,(\textcolor{Blue}{XX})}"]
+          \arrow[dll, swap, "\alpha_{X,X X,X (\textcolor{Blue}{XX})}"]
+          &[-1cm]
+          &[-2.5cm]
+          &[-2cm]
+          \\[0.2cm] % 1
+          &
+          (X (X  X))  (X  (\textcolor{Blue}{XX}))
+          \arrow[dl, swap, "\alpha_{X,X,X}\otimes (1_{X} \otimes 1_{(\textcolor{Blue}{XX})})"]
+          \arrow[dddr, Black!30!White, dashed]
+          &
+          & 
+          X (X (X (X (\textcolor{Blue}{XX}))))
+          \arrow[u, "1_{X}\otimes \alpha_{X,X,X (\textcolor{Blue}{XX})}"]
+          \arrow[ddl, swap, "\alpha_{X,X, X (X (\textcolor{Blue}{XX}))}"]
+          \arrow[ddr, "1_{X}\otimes(1_{X}\otimes \alpha_{X,X,(\textcolor{Blue}{XX})})"]
+          &
+          &
+          X((( X  X ) X)  (\textcolor{Blue}{XX}))
+          \arrow[dddl,dashed, Black!30!White]
+          &
+          \\[0.4cm] % 2
+          ((X X)  X)  (X  (\textcolor{Blue}{XX}))
+          \arrow[ddddr, swap, "\alpha_{(X X)X, X, (\textcolor{Blue}{XX})}"]
+          &
+          &
+          &
+          &
+          &
+          &
+          X ((X  (X  X)) (\textcolor{Blue}{XX}))
+          \arrow[swap, ul, "(1_{X} \otimes \alpha_{X,X,X})\otimes 1_{(\textcolor{Blue}{XX})}"]
+          \arrow[swap, ddddl, swap, "\alpha_{X,X X X, (\textcolor{Blue}{XX})}"]
+          \\[-0.7cm] %2.5
+          &
+          &
+          (X X)(X (X (\textcolor{Blue}{XX})))
+          \arrow[ull, swap, "\alpha_{X X, X, X (\textcolor{Blue}{XX})}", 
+          start anchor = {[yshift=-0.25cm]},
+          end anchor = {[xshift=-0.5cm]} ]
+          \arrow[ddr,swap,"(1_{X}\otimes 1_{X}) \otimes \alpha_{X,X,(\textcolor{Blue}{XX})}"]
+          &
+          &
+          X (X ((X X)(\textcolor{Blue}{XX}) )
+          \arrow[urr, swap, "1_{X}\otimes \alpha_{X, X X, (\textcolor{Blue}{XX})}",
+          start anchor = {[yshift=-0.25cm]},
+          end anchor = {[xshift=1cm]}]
+          \arrow[ddl, "\alpha_{X,X,(X X) (\textcolor{Blue}{XX})}"]
+          &
+          &
+          \\[1cm] % 3
+          &
+          &
+          \textcolor{Black!30!White}{\bullet}
+          \arrow[Black!30!White, dashed, ddl]
+          &
+          &
+          \textcolor{Black!30!White}{\bullet}
+          \arrow[swap, ll, dashed, Black!30!White]
+          &
+          &
+          \\[-0.7cm] %3.5
+          &
+          &
+          &
+          (X X)((X X)(\textcolor{Blue}{XX}))
+          \arrow[dd, "\alpha_{X X, X X, (\textcolor{Blue}{XX})}"]
+          &
+          &
+          &
+          \\[0.4cm] % 4
+          &
+          (((X X)  X)  X)  (\textcolor{Blue}{XX})
+          &
+          &
+          &
+          &
+          (X (X  (X  X)))  (\textcolor{Blue}{XX})
+          \arrow[Black!30!White, dashed, uul]
+          \arrow[swap, dll, swap, "\alpha_{X, X, X X} \otimes 1_{(\textcolor{Blue}{XX})}"]
+          &
+          \\[0.2cm] % 5
+          &
+          &
+          &
+          ((X X)  (X  X))  (\textcolor{Blue}{XX})
+          \arrow[swap, ull, swap, "\alpha_{X X, X, X}\otimes 1_{(\textcolor{Blue}{XX})}"]
+          &
+          &
+          &
+     \end{tikzcd}
+\end{center}

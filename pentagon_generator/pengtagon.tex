@@ -1,0 +1,18 @@
+\begin{center}
+     \begin{tikzcd}[column sep = 1.2cm, row sep = 2cm]
+          A \otimes (  I  \otimes ( I  \otimes  A ))
+          \arrow[r, shift right = -0.5ex, " \alpha_{ A, I , I \otimes A }"]
+          \arrow[d, shift right = 0.5ex,swap, "1_{ A } \otimes \alpha_{ I  , I, A }"]
+          & 
+          (  A \otimes  I )\otimes( I \otimes A )
+          \arrow[r, shift right = -0.5ex, " \alpha_{ A \otimes  I, I, A }"]
+          &
+          ((  A \otimes  I )\otimes I )\otimes A 
+          \\ 
+          A \otimes((  I \otimes I )\otimes A )
+          \arrow[rr, shift right = 0.5ex, swap, " \alpha_{ A,  I \otimes I, A }"]
+          && 
+          (  A \otimes(  I\otimes I ))\otimes A 
+          \arrow[u, shift right = 0.5ex, swap, "  \alpha_{ A,  I, I } \otimes 1_{ A } "]
+     \end{tikzcd}
+\end{center}
