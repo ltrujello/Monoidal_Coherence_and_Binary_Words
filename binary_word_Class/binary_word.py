@@ -1,112 +1,291 @@
-# This program is for (pure) binary words. A binary word is 
-# defined recursively as follows: 
-#   The symbol x is a binary word.
-#   If u, v are binary words, so is (u)(v).
+# This program is for (pure) binary words. 
 # Binary words are usually written more informally as x(xx), (xx)x, etc. 
 # So, every binary word can be written as (u)(v) for some smaller binary words (except x). 
 
-# A class for binary words. The constructor is recursive.
-# An example: word = BinaryWord("x(x(xx))"). It calculates its length, and all of the substructures
-# of x(x(xx)), which is harder to think about when we include more and more x's. 
-
+'''
+A class for binary words. The constructor is recursive.
+An example: word = BinaryWord("x(x(xx))"). It calculates its length, and all of the substructures
+of x(x(xx)), which is harder to think about when we include more and more x's. 
+'''
 class BinaryWord:
-    def __init__(self, form="(x)"): 
-            self.form = form # save the binary word expression
-            self.formal_form = add_parenthesis(form) # also save the formalized expression
-            # This is our base case. 
-            if form == "(x)": 
-                self.left = None
-                self.right = None
-                self.length = 1
-            # If we're not at out base case, then split the word.
-            else:                    
-                left, right = split_binary_word(self.formal_form) #we split the binary word
-                self.left = BinaryWord(left) 
-                self.right = BinaryWord(right)
-                self.length = self.left.length + self.right.length
+    '''
+    A BINARY WORD is defined recursively as follows: 
+        1. The symbol x is a binary word.
+        2. If u, v are binary words, so is (u)(v).
+    Therefore, every binary word has a "left" component, which is a  binary word, and a right component.
+    
+    Moreover, every binary word has a FORM, which is the formal expression of the word into its x's. 
+    The formal expression is what will make a computer's life easier, but in practice they're clunky. E.g., 
+    (x)((x)(x)) is a binary word, but in practice, we'd like to actually just write x(xx). Therefore we define 
+    such a ''reduced'' form as the EXPRESSION. 
 
-def tensor_words(word1, word2):
-    product = BinaryWord( "("+word1.form+")" + "("+word2.form+")")
-    return product
+    Every binary word has LENGTH. It is the number of letters in the word. 
+    Rigorously, length of a binary word is defined recursively as follows:
+        1. The word x has length 1.
+        2. The word (u)(v) has length len(u) + len(v).
 
+    Binary words also have a RANK. The rank of a binary word is defined recursively as follows. 
+        1. The rank of x is 0.
+        2. The rank of (u)(v) is rank(u) + rank(v) + len(v) - 1.
+    '''
+    def __init__(self, expression="x"): 
+        self.expression = expression # save the binary word expression
+        # self.form = add_parenthesis(form) # also save the formalized expression
+        # This is our base case. 
+        if expression == "x": 
+            self.left = None
+            self.right = None
+            self.form = "(x)"
+            self.length = 1
+            self.rank = 0
+        # If we're not at out base case, then split the word.
+        else:                    
+            left, right = split_binary_word(self.expression) #we split the binary word
+            self.left = BinaryWord(left) 
+            self.right = BinaryWord(right)
+            self.length = self.left.length + self.right.length
+            self.rank = self.left.rank + self.right.rank + self.right.length - 1
+    '''
+    Parameters
+    ----------
+    word1 : BinaryWord
+    word2 : BinaryWord    
+
+    Returns
+    ----------
+    product: BinaryWord
+    '''
+    def tensor(self, right):
+        '''Compute the tensor product of two binary words.
+        '''
+        left= self.expression 
+        right = right.expression 
+        if is_surrounded(left):
+            left = remove_outer_pars(left)
+        if is_surrounded(right):
+            right = remove_outer_pars(right)
+
+        product = BinaryWord( "("+ left + ")" + "("+ right +")")
+        return product
+
+    '''
+    Parameters
+    ----------
+    word : BinaryWord
+
+    Returns
+    ----------
+    string
+    '''
+    def add_formal_pars(self):
+        '''adds the formal parentheses to a binary word expression. E.g., x(xx) => (x)((x)(x))
+        '''
+        # Our base case is x or xx, since we expect the user to write x(xx), (x(xx))x, etc.
+        if self.expression == "x": 
+            return "(x)"
+        if self.expression == "xx":
+            return "(x)(x)"
+        # If we are not at our base case, we split the binary word into its left and right components and recurse.
+        else:
+            left = self.left.add_formal_pars()
+            right = self.right.add_formal_pars()
+            
+            # Next two ifs guarantee we don't have redundant parentheses in our final expression    
+            if is_surrounded(left):
+                left = remove_outer_pars(left)
+            if is_surrounded(right):
+                right = remove_outer_pars(right)
+            return "(" + left + ")" + "(" + right + ")"
+
+
+'''
+Parameters
+----------
+word : string
+
+Returns
+----------
+swapped_word : string
+'''
+def swap_letters_for_x(word_expression):
+    '''Replaces every letter in an expression with 'x'. This allows the user  
+    the convenience to write whatever they want, e.g. A(BC), while behind the scenes, we work with x, e.g. x(xx).  
+    '''
+    word_list = list(word_expression)
+    for ind in range(0, len(word_list)):
+        if word_list[ind] != "(" and word_list[ind] !=  ")" and word_list[ind] != 'x':
+            word_list[ind] = 'x'
+    new_expression = "".join(word_list)
+    return new_expression
+            
+'''
+The morphisms in our category are of the form 
+of alpha arrows.
+'''
 class Alpha:
     def __init__(self, source, target): 
         self.source = source
         self.target = target
-        # self.source = source
         # if self.target.left.left == source.left and\
         #    self.target.left.right == source.right.left and\
         #    self.target.right.right == source.right.right
 
-# Input: Binary Word. Output: Binary Word with formal parenthesis.
-# Ex: x(xx) is rewritten more formally as (x)((x)(x)).
-def add_parenthesis(word_expression):  
-    # We have three cases.
-    new_expression = word_expression.replace("x(", "(x)(")  #...x(... becomes ...(x)(...
-    new_expression = new_expression.replace(")x", ")(x)")   #...)x... becomes ...)(x)...
-    new_expression = new_expression.replace("xx", "(x)(x)") #...xx... becomes ...(x)(x)...
-    return new_expression 
+'''
+Parameters
+----------
+word_expression : string
 
-# Input: (formally parenthesized) Binary Word. Output: nonnegtive integer.
-# For a binary word w = u \otimes v, we find u, v, and output them.
-# Ex: str="(x)((x)(x))" outputs "(x)", "(x)(x)".
-def split_binary_word(word_expression):
+Returns
+----------
+par_count : int
+'''
+def parenthesis_tracker(word_expression, index=None):
+    ''' counts parenthesis-matches up to index. By default, index = length of the word.
+    '''
+    if index is None: # work-around of defining default param in terms of other param
+        index = len(word_expression)
+
+    assert index <= len(word_expression), "index tracker too large"
     num_left_par=0  # number of left parenthesis
     num_right_par=0 # number of right parenthesis
-    sep_index=0     # the index for separation
-    for letter_index in range(0,len(word_expression)):
-        letter = word_expression[letter_index]
+    for ind in range(0, index):
+        letter = word_expression[ind]
         if letter == "(": #if we find a left parenthesis
             num_left_par+=1 
         if letter == ")": #if we find a right parenthesis
             num_right_par +=1
-            if num_right_par - num_left_par ==0: 
-                sep_index= letter_index
-                break
-    assert sep_index != 0, "Input had mismatched left and right parenthesis."
-    left = word_expression[:sep_index+1]
-    right = word_expression[sep_index+1:]
-    #we're done, but we just want to remove extra needless paranthesis. e.g. ((x)). 
-    #this requires separately checking the left and the right words.
-    print("split!")
-    if left[:2] == "((" and left[-2:] == "))":
-        left = left[1:-1]
-    if right[:2] == "((" and right[-2:] == "))":
-        right = right[1:-1]
-    return left, right
+    par_count = num_left_par - num_right_par
+    return par_count
 
-# Input: binary word.
-# Output: rank.
-# For a binary word w = u \otimes v, we define 
-# r(w) = r(u) + r(v) + length(v) - 1.
-def rank(word):
-    if word.form == "(x)":
-        return 0
+'''
+Parameters
+----------
+word_expression : string
+
+Returns
+----------
+Bool 
+'''
+def is_matched(word_expression, index=None):
+    '''Helper for is_surrounded.'''
+    '''A tool to figure out if the word has a correctly matched parenthesis up to desired index.
+       By default, the index is the length of the word.
+       A user has input and incorrect word if this is false when index = len(word_expression). 
+    '''
+    if index is None: # work-around of defining default param in terms of other param
+        index = len(word_expression)
+    assert index>0, "Checking matched parenthesis at index = 0 is not logical."
+    par_count = parenthesis_tracker(word_expression, index)
+    if par_count != 0:
+        return False
     else:
-        return rank(word.left) + rank(word.right) + word.right.length - 1
+        return True
+
+
+'''
+Parameters
+----------
+word_expression : string
+
+Returns Bool
+'''
+def is_surrounded(word_expression):
+    '''Helper for split_binary_word.'''
+    ''' Detects if the expression is already surrounded, or enclosed, in backets.
+    Some surrounded words: (x), (xx), (x(xx)), ...
+    '''
+    assert is_matched(word_expression), "Mismatched parentheses in " + word_expression #at the very least, the whole word should be matched
+    for ind in range(1, len(word_expression)):
+        if is_matched(word_expression, ind): #if we find a set of closed brackets 
+            return False #then the expression is not closed
+    return True
+
+'''
+Parameters
+----------
+word_expression : string
+                  A word_expression which has redundant outer parentheses on it.
+Returns
+----------
+stripped_expression : Returns string
+                      The same expression, with the outer parentheses removed.
+'''
+def remove_outer_pars(word_expression):
+    ''' Helper for split_binary_word.'''
+    # print(word_expression + " has redundant parenthesis, removing the outer ones.")
+    assert is_surrounded(word_expression), "Asked to remove outer parentheses on word which is not surrounded."
+    stripped_expression = word_expression[1:-1]
+    return stripped_expression
+
+'''
+Parameters
+----------
+word_expression : string
+
+Returns
+----------
+left, right : string
+              The informal expression of a binary word.
+Ex: str="x(xx)" outputs "x", "xx".
+'''
+def split_binary_word(word_expression):
+    ''' Finds and returns the left and right components. 
+    '''
+    # we're letting the user be informal, so we need to take care of some cases manually
+    # case for when we have x or xx.
+    if word_expression == "x": 
+        return "x", None       
+    if word_expression == "xx":
+        return "x", "x"
+
+    # at this point, the word has parentheses. So we check that they're matched before moving on.
+    assert is_matched(word_expression), "Mismatched parentheses in " + word_expression
+
+    # cases for when we have x(...) of (...)x
+    if word_expression[:2] == "x(": 
+        return "x", remove_outer_pars(word_expression[1:])   # returns x and ... 
+    if word_expression[-2:] == ")x": #
+        return remove_outer_pars(word_expression[:-1]), "x"  # returns ... and x
+    
+    # this is just to catch an unlikely error in which the user put in a word redundantly surrounded by parentheses.
+    if is_surrounded(word_expression): 
+        return split_binary_word(remove_outer_pars(word_expression))
+    
+    # in all other cases, we have something of the form (...)(---). So, we need to find the index marking the 
+    # end of the left (...)
+    else: 
+        for ind in range(1, len(word_expression)):
+            if is_matched(word_expression, ind): #if we find a closed expression
+                # print("match", ind)
+                left, right = word_expression[:ind], word_expression[ind:] #returns (...) and (---)
+                clean_left = remove_outer_pars(left)
+                clean_right = remove_outer_pars(right)
+                return clean_left, clean_right
+
+
 
 # Input: two binary words.
 # Outpit: lists of paths. 
-def alpha_paths(source):
-    target = BinaryWord()
-    target.left = source.
+# def alpha_paths(source):
+    # target = BinaryWord()
+    # target.left = source.
 
 
-    if rank(source) <= rank(target):
-        return [], "No alpha-arrows."
+    # if rank(source) <= rank(target):
+    #     return [], "No alpha-arrows."
 
-    if target.left.left.form == source.left.form and \
-    target.left.right.form == source.right.left.form and \
-    target.right.form == source.right.right.form:
-        return [("alpha", Alpha(source, target))]
+    # if target.left.left.form == source.left.form and \
+    # target.left.right.form == source.right.left.form and \
+    # target.right.form == source.right.right.form:
+    #     return [("alpha", Alpha(source, target))]
 
-    if source.left.form == target.left.form:
-        return [("1\otimes \\alpha", Alpha(source, target))] \
-        + alpha_paths(source.right, target.right)
+    # if source.left.form == target.left.form:
+    #     return [("1\otimes \\alpha", Alpha(source, target))] \
+    #     + alpha_paths(source.right, target.right)
     
-    if source.right.form == target.right.form:
-        return [("\\alpha \otimes 1"), Alpha(source, target)] \
-        + alpha_paths(source.left, target.left)
+    # if source.right.form == target.right.form:
+    #     return [("\\alpha \otimes 1"), Alpha(source, target)] \
+    #     + alpha_paths(source.left, target.left)
 
 
 
