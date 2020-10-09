@@ -1,10 +1,7 @@
 # This program is for (pure) binary words. 
-# Binary words are usually written more informally as x(xx), (xx)x, etc. 
-# So, every binary word can be written as (u)(v) for some smaller binary words (except x). 
-
 '''
 A class for binary words. The constructor is recursive.
-An example: word = BinaryWord("x(x(xx))"). It calculates its length, and all of the substructures
+An example: word = BinaryWord("x(x(xx))"). It calculates its length and all of the substructures
 of x(x(xx)), which is harder to think about when we include more and more x's. 
 '''
 class BinaryWord:
@@ -14,7 +11,7 @@ class BinaryWord:
         2. If u, v are binary words, so is (u)(v).
     Therefore, every binary word has a "left" component, which is a  binary word, and a right component.
     
-    Moreover, every binary word has a FORM, which is the formal expression of the word into its x's. 
+    Moreover, every binary word has a FORM, which is the formal expression of the word into its (x)'s. 
     The formal expression is what will make a computer's life easier, but in practice they're clunky. E.g., 
     (x)((x)(x)) is a binary word, but in practice, we'd like to actually just write x(xx). Therefore we define 
     such a ''reduced'' form as the EXPRESSION. 
@@ -60,12 +57,30 @@ class BinaryWord:
         '''
         left= self.expression 
         right = right.expression 
+
+        # If there are redundant parentheses, remove them, because we may add parentheses later 
         if is_surrounded(left):
             left = remove_outer_pars(left)
         if is_surrounded(right):
             right = remove_outer_pars(right)
 
-        product = BinaryWord( "("+ left + ")" + "("+ right +")")
+        ''' of concern is the case when we are tensoring x. Because we want the expression 
+        of the binary word to be informal, i.e., natural for the reader, we need to make sure we don't put redundant 
+        parentheses on individual x's.
+        '''
+        if left == "x" and right ==  "x":
+            product = BinaryWord( left + right ) #no parentheses
+        
+        # If this is true, then the right is not "x" 
+        elif left == "x":
+            product = BinaryWord( left + "("+ right +")") #just parentheses for the right
+        # If this is true, then the left is not "x"
+        elif right == "x":
+            product = BinaryWord("("+ left +")" + right)  #just parentheses for the left
+
+        # in all other cases, we do want to produce an expression of the form (...)(---).
+        else:
+            product = BinaryWord( "("+ left + ")" + "("+ right +")") #parentheses for left and right
         return product
 
     '''
@@ -122,15 +137,41 @@ def swap_letters_for_x(word_expression):
 The morphisms in our category are of the form 
 of alpha arrows.
 '''
-class Alpha:
-    def __init__(self, source, target): 
+class AlphaArrow:
+    '''
+    An alpha arrow is a morphism u \otimes (v\otimes w) --> (u \otimes v) \otimes w. These encode 
+    a single change of parentheses in monoidal categories.  
+    '''
+    def __init__(self, source, target, expression): 
+        self.expression = expression
         self.source = source
         self.target = target
-        # if self.target.left.left == source.left and\
-        #    self.target.left.right == source.right.left and\
-        #    self.target.right.right == source.right.right
+        if expression == "1":
+            self.u = None
+            self.v = None
+            self.w = None
+            self.left = None
+            self.right = None
+        elif expression == "\\alpha":
+            self.u = source.left.left
+            self.v = source.left.right
+            self.w = source.right
+            self.left = None
+            self.right = None
+        elif expression[0] == "1":
+            self.u = None
+            self.v = None
+            self.w = None
+            self.left = None
+            self.right = AlphaArrow(source.right, target.right, expression[1:])
+        elif expression[:-1] == "1":
+            self.u = None
+            self.v = None
+            self.w = None
+            self.left = AlphaArrow(source.right, target.right, expression[1:])
+            self.right = None
 
-'''
+'''         
 Parameters
 ----------
 word_expression : string
@@ -187,13 +228,17 @@ Parameters
 ----------
 word_expression : string
 
-Returns Bool
+Returns
+----------
+Bool
 '''
 def is_surrounded(word_expression):
     '''Helper for split_binary_word.'''
     ''' Detects if the expression is already surrounded, or enclosed, in backets.
     Some surrounded words: (x), (xx), (x(xx)), ...
     '''
+    if word_expression == "x":
+        return False
     assert is_matched(word_expression), "Mismatched parentheses in " + word_expression #at the very least, the whole word should be matched
     for ind in range(1, len(word_expression)):
         if is_matched(word_expression, ind): #if we find a set of closed brackets 
@@ -231,7 +276,7 @@ Ex: str="x(xx)" outputs "x", "xx".
 def split_binary_word(word_expression):
     ''' Finds and returns the left and right components. 
     '''
-    # we're letting the user be informal, so we need to take care of some cases manually
+    # we're letting the user be informal, so we need to take care of some cases manually.
     # case for when we have x or xx.
     if word_expression == "x": 
         return "x", None       
@@ -262,13 +307,34 @@ def split_binary_word(word_expression):
                 clean_right = remove_outer_pars(right)
                 return clean_left, clean_right
 
-
-
 # Input: two binary words.
 # Outpit: lists of paths. 
-# def alpha_paths(source):
-    # target = BinaryWord()
-    # target.left = source.
+def alpha_paths(source):
+    paths = []
+    # cases for when length is <= 3
+    if source.length <=  3:
+        if source.rank ==1:
+            target_left = source.left.tensor(source.right.left)
+            target_right = source.right.right
+            target = target_left.tensor(target_right)
+            
+            morph = Alpha(source, target)
+            return [("\\alpha", morph)]
+        else: 
+            return = []
+        
+    # cases for when length >= 4.
+    elif source.right.length > 1: 
+        target_left = source.left.tensor(source.right.left)
+        target_right = source.right.right
+        target = target_left.tensor(target_right)
+    
+        morph = Alpha(source, target)
+        paths += [("\\alpha", morph)] 
+    
+    elif source.left.length == 1:
+        paths += [("1\\alpha("()] + alpha_paths(source.right)
+
 
 
     # if rank(source) <= rank(target):
