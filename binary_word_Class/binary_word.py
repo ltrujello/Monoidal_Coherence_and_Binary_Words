@@ -1,4 +1,6 @@
+import json
 # This program is for (pure) binary words. 
+# satan was here XD
 '''
 A class for binary words. The constructor is recursive.
 An example: word = BinaryWord("x(x(xx))"). It calculates its length and all of the substructures
@@ -27,21 +29,21 @@ class BinaryWord:
     '''
     def __init__(self, expression="x"): 
         self.expression = expression # save the binary word expression
-        # self.form = add_parenthesis(form) # also save the formalized expression
         # This is our base case. 
         if expression == "x": 
             self.left = None
             self.right = None
             self.form = "(x)"
-            self.length = 1
+            self.len = 1
             self.rank = 0
         # If we're not at out base case, then split the word.
         else:                    
             left, right = split_binary_word(self.expression) #we split the binary word
             self.left = BinaryWord(left) 
             self.right = BinaryWord(right)
-            self.length = self.left.length + self.right.length
-            self.rank = self.left.rank + self.right.rank + self.right.length - 1
+            self.len = self.left.len + self.right.len
+            self.rank = self.left.rank + self.right.rank + self.right.len - 1
+        self.form = self.add_formal_pars() # also save the formalized expression
     '''
     Parameters
     ----------
@@ -133,44 +135,6 @@ def swap_letters_for_x(word_expression):
     new_expression = "".join(word_list)
     return new_expression
             
-'''
-The morphisms in our category are of the form 
-of alpha arrows.
-'''
-class AlphaArrow:
-    '''
-    An alpha arrow is a morphism u \otimes (v\otimes w) --> (u \otimes v) \otimes w. These encode 
-    a single change of parentheses in monoidal categories.  
-    '''
-    def __init__(self, source, target, expression): 
-        self.expression = expression
-        self.source = source
-        self.target = target
-        if expression == "1":
-            self.u = None
-            self.v = None
-            self.w = None
-            self.left = None
-            self.right = None
-        elif expression == "\\alpha":
-            self.u = source.left.left
-            self.v = source.left.right
-            self.w = source.right
-            self.left = None
-            self.right = None
-        elif expression[0] == "1":
-            self.u = None
-            self.v = None
-            self.w = None
-            self.left = None
-            self.right = AlphaArrow(source.right, target.right, expression[1:])
-        elif expression[:-1] == "1":
-            self.u = None
-            self.v = None
-            self.w = None
-            self.left = AlphaArrow(source.right, target.right, expression[1:])
-            self.right = None
-
 '''         
 Parameters
 ----------
@@ -276,12 +240,14 @@ Ex: str="x(xx)" outputs "x", "xx".
 def split_binary_word(word_expression):
     ''' Finds and returns the left and right components. 
     '''
-    # we're letting the user be informal, so we need to take care of some cases manually.
-    # case for when we have x or xx.
+    # ----------- base cases ----------
+    if word_expression == "":
+        return None, None
     if word_expression == "x": 
         return "x", None       
     if word_expression == "xx":
         return "x", "x"
+    # ---------------------------------
 
     # at this point, the word has parentheses. So we check that they're matched before moving on.
     assert is_matched(word_expression), "Mismatched parentheses in " + word_expression
@@ -307,51 +273,181 @@ def split_binary_word(word_expression):
                 clean_right = remove_outer_pars(right)
                 return clean_left, clean_right
 
+def n_binary_words(n):
+    words_of_len_n = []
+    if n == 1:
+        return [BinaryWord("x")]
+    else:
+        for i in range(1,n):
+            for left_word in n_binary_words(i):
+                for right_word in n_binary_words(n-i):
+                    words_of_len_n.append(left_word.tensor(right_word)) 
+        return words_of_len_n
+'''
+The morphisms in our category are of the form 
+of alpha arrows.
+'''
+class AlphaArrow:
+    '''
+    An alpha arrow is a morphism u \otimes (v\otimes w) --> (u \otimes v) \otimes w. These encode 
+    a single change of parentheses in monoidal categories.  w = u v = u (y z) --> (u y) z 
+    '''
+    def __init__(self, source, target, expression="1"): 
+        self.expression = expression
+        self.source = source
+        self.target = target
+        if expression == "1":
+            self.u = None
+            self.v = None
+            self.w = None
+            self.left = None
+            self.right = None
+        if expression == "\\alpha_{u,v,w}":
+            self.u = source.left
+            self.v = source.right.left
+            self.w = source.right.right
+            self.left = None
+            self.right = None
+        elif expression[:2] == "1(":
+            self.u = None
+            self.v = None
+            self.w = None
+            self.left = AlphaArrow(source.left, source.left)
+            self.right = AlphaArrow(source.right, target.right, expression[2:])
+        elif expression[-2:] == ")1":
+            self.u = None
+            self.v = None
+            self.w = None
+            self.left = AlphaArrow(source.left, target.left, expression[:-2])
+            self.right = AlphaArrow(source.right, source.right)
+
+
+def alpha_expressions(source):
+    paths = []
+    if source.len <= 3:
+        if source.expression == "x(xx)":
+            paths+=["\\Alpha"]
+        else:
+            return []
+    else:
+        lefts = source.left.len
+        rights = source.right.len
+        if rights > 1:
+            paths += ["\\Alpha"]
+        if rights == 1:
+            paths += ["(" + expr + ")1" for expr in alpha_expressions(source.left)]
+        if lefts == 1:
+            paths += ["1(" + expr + ")"for expr in alpha_expressions(source.right)]
+        if lefts > 1 and rights > 1:
+            paths += [lefts*"1(" + expr + ")"*lefts for expr in alpha_expressions(source.right) ]
+            paths += [rights*"(" + expr + ")1"*rights for expr in alpha_expressions(source.left)]
+    return paths
+
+def count_left_ones(alpha_expr):
+    num_left_ones = 0
+    i = 0
+    while i < len(alpha_expr):
+        if alpha_expr[i:2+i] == "1(":
+            num_left_ones +=1 
+            i+=2
+        else:
+            break
+    return num_left_ones
+
+def count_right_ones(alpha_expr):
+    num_right_ones = 0
+    i = len(alpha_expr)
+    while i <= len(alpha_expr):
+        if alpha_expr[(i-2):i] == ")1":
+            num_right_ones += 1
+            i-=2
+        else:
+            break
+    return num_right_ones
+
+def remove_single_xs(word, nested_ind, side):
+    assert nested_ind >= 0, "Asked to remove a nonnegative number of elements."
+    # --------- base cases ------------
+    if nested_ind == 0:
+        return word
+    # if word.length == ""
+    # ---------------------------------
+
+    if side ==  "right":
+        r_len = word.right.len
+        if r_len == nested_ind:
+            return codomain_of_alpha_exp(word.left).tensor(word.right)
+        elif r_len > nested_ind:
+            right = remove_single_xs(word.right, nested_ind, side)
+            return word.left.tensor(right)
+        elif r_len < nested_ind:
+            return remove_single_xs(word.left, nested_ind-r_len, side).tensor(word.right)
+    if side == "left":
+        l_len = word.left.len
+        if l_len == nested_ind:
+            return word.left.tensor(codomain_of_alpha_exp(word.right))
+        elif l_len > nested_ind:
+            left = remove_single_xs(word.left, nested_ind, side)
+            return left.tensor(word.right)
+        elif l_len < nested_ind:
+            return word.left.tensor(remove_single_xs(word.right, nested_ind-l_len, side))
+
+def pure_alpha_arrow(source):
+    target_left = source.left.tensor(source.right.left)
+    target_right = source.right.right
+    target = target_left.tensor(target_right)                
+    return target 
+
+def target_of_alpha(source, alpha_expr):
+    if alpha_expr == "\\Alpha":
+        return pure_alpha_arrow(source)
+    elif alpha_expr[:2] == "1(":
+        l_len = source.left.len
+        return source.left.tensor(target_of_alpha(source.right, alpha_expr[2*l_len:-1*l_len]))
+    elif alpha_expr[-2:] == ")1":
+        r_len = source.right.len 
+        return target_of_alpha(source.left, alpha_expr[1*r_len:-2*r_len]).tensor(source.right)
+
+
 # Input: two binary words.
 # Outpit: lists of paths. 
+# arrow = AlphaArrow(source, path_target, path_expr)
 def alpha_paths(source):
+    all_alpha_paths = []
+    for path_expr in alpha_expressions(source):
+        path_target = target_of_alpha(source, path_expr)
+        path = (path_expr, source, path_target)
+        all_alpha_paths.append(path)
+    return all_alpha_paths
+
+
+def alpha_paths_on_n(n):
+    paths_dict = {}
+    for word_len_n in n_binary_words(n):
+        paths_dict[word_len_n.expression] = {}  
+        for path in alpha_paths(word_len_n):
+            arrow = path[0]
+            paths_dict[word_len_n.expression][arrow.expression] = arrow
+    return paths_dict
+
+def word_data_to_json(n):   
+    dict = {} 
+    words = []
     paths = []
-    # cases for when length is <= 3
-    if source.length <=  3:
-        if source.rank ==1:
-            target_left = source.left.tensor(source.right.left)
-            target_right = source.right.right
-            target = target_left.tensor(target_right)
-            
-            morph = Alpha(source, target)
-            return [("\\alpha", morph)]
-        else: 
-            return = []
-        
-    # cases for when length >= 4.
-    elif source.right.length > 1: 
-        target_left = source.left.tensor(source.right.left)
-        target_right = source.right.right
-        target = target_left.tensor(target_right)
-    
-        morph = Alpha(source, target)
-        paths += [("\\alpha", morph)] 
-    
-    elif source.left.length == 1:
-        paths += [("1\\alpha("()] + alpha_paths(source.right)
-
-
-
-    # if rank(source) <= rank(target):
-    #     return [], "No alpha-arrows."
-
-    # if target.left.left.form == source.left.form and \
-    # target.left.right.form == source.right.left.form and \
-    # target.right.form == source.right.right.form:
-    #     return [("alpha", Alpha(source, target))]
-
-    # if source.left.form == target.left.form:
-    #     return [("1\otimes \\alpha", Alpha(source, target))] \
-    #     + alpha_paths(source.right, target.right)
-    
-    # if source.right.form == target.right.form:
-    #     return [("\\alpha \otimes 1"), Alpha(source, target)] \
-    #     + alpha_paths(source.left, target.left)
-
-
-
+    for word in n_binary_words(n):
+        print(word.expression)
+        word_dict = {}
+        word_dict["id"] = word.expression
+        word_dict["name"] = word.expression
+        words.append(word_dict)
+        for path in alpha_paths(word):
+            # print(path[0].expression)
+            path_dict = {}
+            path_dict["source"] = path[1].expression
+            path_dict["target"] = path[2].expression
+            paths.append(path_dict)
+    dict["nodes"] = words
+    dict["links"] = paths
+    with open("binary_words_of_" + str(n) + ".json", "w") as outfile:
+        json.dump(dict, outfile, indent = 4)
+    return len(dict["nodes"]), len(dict["links"])
