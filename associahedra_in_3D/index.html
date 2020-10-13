@@ -20,57 +20,30 @@
     <div id="3d-graph"></div>
   
     <script>
-    const highlightNodes = new Set();
     const showAnimation = false;
     const showArrowDirection = false;
     const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
-            .jsonUrl('binary_words_of_5'+'.json')
+            .jsonUrl('binary_words_of_5'+'.json') // Default associahedron
             .nodeLabel('id')
-            // .graphData(gData)
-            .nodeRelSize(20)
-            .nodeOpacity(1)
             .nodeLabel(node => node.name)
+            .nodeThreeObject(function(){})
+            .nodeRelSize(7)
+            .nodeOpacity(1)
+            .nodeColor(node => "rgb(114, 143, 255)")
             .nodeResolution(20)
             .linkOpacity(0.9)
             .linkWidth(0.3)  
             .linkColor(link=>"rgba(0,0,0,1)")
-            // .linkDirectionalArrowLength(20)
-            // .linkDirectionalArrowRelPos(1)
-            .nodeColor(node => "rgb(114, 143, 255)")
+            .nodeLabel(label => `<span style= "color: rgb(0, 0, 0); lack">${label.name}</span>`)
             .backgroundColor("#ffffff")
-            .onNodeDragEnd(node => {
+            .onNodeDragEnd(node => { // Fix nodes after drag and drop
                 node.fx = node.x;
                 node.fy = node.y;
                 node.fz = node.z;
             })
-            .nodeThreeObject(({ img }) => {
-            // use a sphere as a drag handle
-            const obj = new THREE.Mesh(
-            new THREE.SphereGeometry(7),
-            new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0 })
-            );
-
-            // add img sprite as child
-            const imgTexture = new THREE.TextureLoader().load(`./imgs/${img}`);
-            const material = new THREE.SpriteMaterial({ map: imgTexture });
-            const sprite = new THREE.Sprite(material);
-            sprite.scale.set(60, 30);
-            obj.add(sprite);
-
-            return obj;
-            });
-    Graph.nodeLabel(d => `<span style= "color: rgb(0, 0, 0); lack">${d.name}</span>`)
-
-    // Shows the direction of the arrows. False by default.
-    if(showArrowDirection){
-        Graph.linkDirectionalArrowLength(20)
-        Graph.linkDirectionalArrowRelPos(1)
-    }
-
-    // Disables interaction and enables rotation of the associahedron.
-    // Set to false by default.
-    if(showAnimation){
+    Graph.d3Force('charge').strength(-500) // Choice of force + repulsion strength
+    if(showAnimation){// Disables interaction and enables rotation of the associahedron.
         const distance = 1400;
         Graph.enableNodeDrag(false)
         Graph.enableNavigationControls(false)
@@ -85,23 +58,77 @@
             }, 10)
     }
 
-    // Choice of force + repulsion strength
-    Graph.d3Force('charge').strength(-500);
-
-    // Define GUI to control associahedron of choice
-    const Settings = function() {
-        this.K_n = 3;
+    // Define GUI to presentation of associahedron 
+    const settings = {
+        K_n : 3,
+        showVertices: true,
+        BinaryWords : false,
+        Arrows : false
     };
-    const settings = new Settings();
     const gui = new dat.GUI();
-    const associahedronDimension = gui.add(settings, 'K_n', 1, 10).step(1);
-    // Upon change, change the .json file and resize the camera to fit new objects
-    associahedronDimension.onChange(function updateAssociahedron(n) {
+    const associahedronDimension = gui.add(settings, 'K_n', 1, 10).step(1) // Adds the bar which controls which associahedron is present
+    associahedronDimension.onChange(function updateAssociahedron(n) { // Upon change, change the .json file and resize the camera to fit new objects
         Graph.jsonUrl('binary_words_of_'+ n.toString() +'.json');
         Graph.refresh();
         Graph.zoomToFit(0, 10, node => true);
     });
-
-        
+    // Option to show or suppress parenthesizations
+    gui.add(settings, 'BinaryWords').onChange(function (showBinaryWords) {
+        if(settings.showVertices){
+            if(showBinaryWords){
+            updateWords()
+        }
+        else{
+            Graph.nodeThreeObject(function(){});
+        }
+    }
+    }); 
+    // Option to show or suppress arrow tips
+    gui.add(settings, 'Arrows').onChange(function (showArrow) {
+        if(showArrow){
+            Graph.linkDirectionalArrowLength(5)
+            Graph.linkDirectionalArrowRelPos(1)
+        }
+        else{
+            Graph.linkDirectionalArrowLength(0)
+            Graph.linkDirectionalArrowRelPos(0)
+        }
+    }); 
+    // Option to show or suppress all vertices
+    gui.add(settings, 'showVertices').onChange(function (showVertices) {
+        if(!showVertices){
+            Graph.nodeThreeObject(({ img }) => {
+            // use a sphere as a drag handle
+            const obj = new THREE.Mesh(
+            new THREE.SphereGeometry(7),
+            new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0 })
+            );
+            return obj});
+        }
+        else if(settings.BinaryWords){
+            updateWords()
+        }
+        else{
+            Graph.nodeThreeObject(function(){});
+        }
+    }); 
+    // Updates the vertices to present the binary words
+    function updateWords(){
+        // To show binary words, load the LaTeX-ed images
+        Graph.nodeThreeObject(({ img }) => {
+        // use a sphere as a drag handle
+        const obj = new THREE.Mesh(
+        new THREE.SphereGeometry(7),
+        new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0 })
+        );
+        // add img sprite as child
+        const imgTexture = new THREE.TextureLoader().load(`/imgs/${img}`);
+        const material = new THREE.SpriteMaterial({ map: imgTexture });
+        const sprite = new THREE.Sprite(material);
+        sprite.scale.set(100, 30);
+        obj.add(sprite);
+        return obj;
+        });
+    }
     </script>
   </body>
