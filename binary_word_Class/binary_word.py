@@ -542,6 +542,7 @@ def nth_associahedron(n):
         word_dict = {}
         word_dict["id"] = word.expression
         word_dict["name"] = word.expression
+        word_dict["img"] = word.expression + ".jpg"
         words.append(word_dict)
         for path in alpha_paths(word):
             # print(path[0].expression)

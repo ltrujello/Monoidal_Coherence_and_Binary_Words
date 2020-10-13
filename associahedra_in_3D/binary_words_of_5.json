@@ -2,59 +2,73 @@
     "nodes": [
         {
             "id": "x(x(x(xx)))",
-            "name": "x(x(x(xx)))"
+            "name": "x(x(x(xx)))",
+            "img": "x(x(x(xx))).jpg"
         },
         {
             "id": "x(x((xx)x))",
-            "name": "x(x((xx)x))"
+            "name": "x(x((xx)x))",
+            "img": "x(x((xx)x)).jpg"
         },
         {
             "id": "x((xx)(xx))",
-            "name": "x((xx)(xx))"
+            "name": "x((xx)(xx))",
+            "img": "x((xx)(xx)).jpg"
         },
         {
             "id": "x((x(xx))x)",
-            "name": "x((x(xx))x)"
+            "name": "x((x(xx))x)",
+            "img": "x((x(xx))x).jpg"
         },
         {
             "id": "x(((xx)x)x)",
-            "name": "x(((xx)x)x)"
+            "name": "x(((xx)x)x)",
+            "img": "x(((xx)x)x).jpg"
         },
         {
             "id": "(xx)(x(xx))",
-            "name": "(xx)(x(xx))"
+            "name": "(xx)(x(xx))",
+            "img": "(xx)(x(xx)).jpg"
         },
         {
             "id": "(xx)((xx)x)",
-            "name": "(xx)((xx)x)"
+            "name": "(xx)((xx)x)",
+            "img": "(xx)((xx)x).jpg"
         },
         {
             "id": "(x(xx))(xx)",
-            "name": "(x(xx))(xx)"
+            "name": "(x(xx))(xx)",
+            "img": "(x(xx))(xx).jpg"
         },
         {
             "id": "((xx)x)(xx)",
-            "name": "((xx)x)(xx)"
+            "name": "((xx)x)(xx)",
+            "img": "((xx)x)(xx).jpg"
         },
         {
             "id": "(x(x(xx)))x",
-            "name": "(x(x(xx)))x"
+            "name": "(x(x(xx)))x",
+            "img": "(x(x(xx)))x.jpg"
         },
         {
             "id": "(x((xx)x))x",
-            "name": "(x((xx)x))x"
+            "name": "(x((xx)x))x",
+            "img": "(x((xx)x))x.jpg"
         },
         {
             "id": "((xx)(xx))x",
-            "name": "((xx)(xx))x"
+            "name": "((xx)(xx))x",
+            "img": "((xx)(xx))x.jpg"
         },
         {
             "id": "((x(xx))x)x",
-            "name": "((x(xx))x)x"
+            "name": "((x(xx))x)x",
+            "img": "((x(xx))x)x.jpg"
         },
         {
             "id": "(((xx)x)x)x",
-            "name": "(((xx)x)x)x"
+            "name": "(((xx)x)x)x",
+            "img": "(((xx)x)x)x.jpg"
         }
     ],
     "links": [
