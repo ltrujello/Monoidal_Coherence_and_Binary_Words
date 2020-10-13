@@ -272,16 +272,28 @@ def split_binary_word(word_expression):
                 clean_left = remove_outer_pars(left)
                 clean_right = remove_outer_pars(right)
                 return clean_left, clean_right
+'''
+Parameters
+----------
+word_expression : string
 
+Returns
+----------
+words_of_len_n : list
+'''
 def n_binary_words(n):
+    ''' (Recrusively) returns a list containing all binary words of length n.
+    '''
     words_of_len_n = []
-    if n == 1:
-        return [BinaryWord("x")]
+    if n == 1: # Base case
+        return [BinaryWord("x")] 
     else:
+        # Each binary word w of length n can be written as w = uv where u has length i and v has length n - i.
+        # Therefore, we find all such binary words of length n by iterating through i. 
         for i in range(1,n):
-            for left_word in n_binary_words(i):
-                for right_word in n_binary_words(n-i):
-                    words_of_len_n.append(left_word.tensor(right_word)) 
+            for left_word in n_binary_words(i): # this is u, len i
+                for right_word in n_binary_words(n-i): # this is v, len n-i
+                    words_of_len_n.append(left_word.tensor(right_word)) # we tensor uv, add it to the list
         return words_of_len_n
 '''
 The morphisms in our category are of the form 
@@ -321,84 +333,121 @@ class AlphaArrow:
             self.left = AlphaArrow(source.left, target.left, expression[:-2])
             self.right = AlphaArrow(source.right, source.right)
 
+'''
+Parameters
+----------
+source : BinaryWord
 
+Returns
+----------
+path : List
+'''
 def alpha_expressions(source):
+    ''' Given a binary word source, it returns all the possible alpha-arrow expressions
+        with domain source. 
+    '''
     paths = []
-    if source.len <= 3:
+    if source.len <= 3: # Simple base case. 
         if source.expression == "x(xx)":
             paths+=["\\Alpha"]
         else:
             return []
-    else:
-        lefts = source.left.len
+    else:  
+        lefts = source.left.len  
         rights = source.right.len
-        if rights > 1:
+        if rights > 1: # then we can apply an \alpha, so add it to the list
             paths += ["\\Alpha"]
-        if rights == 1:
+        if rights == 1: # if the right component is trivial, look at the left component.
             paths += ["(" + expr + ")1" for expr in alpha_expressions(source.left)]
-        if lefts == 1:
+        if lefts == 1: # if the left component is trivial, look at the right. 
             paths += ["1(" + expr + ")"for expr in alpha_expressions(source.right)]
-        if lefts > 1 and rights > 1:
+        if lefts > 1 and rights > 1: # neither are trivial, separately look at both the left and right.
             paths += [lefts*"1(" + expr + ")"*lefts for expr in alpha_expressions(source.right) ]
             paths += [rights*"(" + expr + ")1"*rights for expr in alpha_expressions(source.left)]
-    return paths
+    return paths # once we're done collecting the paths, return them
 
-def count_left_ones(alpha_expr):
-    num_left_ones = 0
-    i = 0
-    while i < len(alpha_expr):
-        if alpha_expr[i:2+i] == "1(":
-            num_left_ones +=1 
-            i+=2
-        else:
-            break
-    return num_left_ones
+# def count_left_ones(alpha_expr):
+#     num_left_ones = 0
+#     i = 0
+#     while i < len(alpha_expr):
+#         if alpha_expr[i:2+i] == "1(":
+#             num_left_ones +=1 
+#             i+=2
+#         else:
+#             break
+#     return num_left_ones
 
-def count_right_ones(alpha_expr):
-    num_right_ones = 0
-    i = len(alpha_expr)
-    while i <= len(alpha_expr):
-        if alpha_expr[(i-2):i] == ")1":
-            num_right_ones += 1
-            i-=2
-        else:
-            break
-    return num_right_ones
+# def count_right_ones(alpha_expr):
+#     num_right_ones = 0
+#     i = len(alpha_expr)
+#     while i <= len(alpha_expr):
+#         if alpha_expr[(i-2):i] == ")1":
+#             num_right_ones += 1
+#             i-=2
+#         else:
+#             break
+#     return num_right_ones
 
-def remove_single_xs(word, nested_ind, side):
-    assert nested_ind >= 0, "Asked to remove a nonnegative number of elements."
-    # --------- base cases ------------
-    if nested_ind == 0:
-        return word
-    # if word.length == ""
-    # ---------------------------------
+# def remove_single_xs(word, nested_ind, side):
+#     assert nested_ind >= 0, "Asked to remove a nonnegative number of elements."
+#     # --------- base cases ------------
+#     if nested_ind == 0:
+#         return word
+#     # if word.length == ""
+#     # ---------------------------------
 
-    if side ==  "right":
-        r_len = word.right.len
-        if r_len == nested_ind:
-            return codomain_of_alpha_exp(word.left).tensor(word.right)
-        elif r_len > nested_ind:
-            right = remove_single_xs(word.right, nested_ind, side)
-            return word.left.tensor(right)
-        elif r_len < nested_ind:
-            return remove_single_xs(word.left, nested_ind-r_len, side).tensor(word.right)
-    if side == "left":
-        l_len = word.left.len
-        if l_len == nested_ind:
-            return word.left.tensor(codomain_of_alpha_exp(word.right))
-        elif l_len > nested_ind:
-            left = remove_single_xs(word.left, nested_ind, side)
-            return left.tensor(word.right)
-        elif l_len < nested_ind:
-            return word.left.tensor(remove_single_xs(word.right, nested_ind-l_len, side))
+#     if side ==  "right":
+#         r_len = word.right.len
+#         if r_len == nested_ind:
+#             return codomain_of_alpha_exp(word.left).tensor(word.right)
+#         elif r_len > nested_ind:
+#             right = remove_single_xs(word.right, nested_ind, side)
+#             return word.left.tensor(right)
+#         elif r_len < nested_ind:
+#             return remove_single_xs(word.left, nested_ind-r_len, side).tensor(word.right)
+#     if side == "left":
+#         l_len = word.left.len
+#         if l_len == nested_ind:
+#             return word.left.tensor(codomain_of_alpha_exp(word.right))
+#         elif l_len > nested_ind:
+#             left = remove_single_xs(word.left, nested_ind, side)
+#             return left.tensor(word.right)
+#         elif l_len < nested_ind:
+#             return word.left.tensor(remove_single_xs(word.right, nested_ind-l_len, side))
 
+'''
+Parameters
+----------
+source : BinaryWord
+
+Returns
+----------
+target: BinaryWord
+'''
 def pure_alpha_arrow(source):
+    ''' Helper for target_of_alpha. 
+    If the source.expression is of the form u(vw), it returns the binary word (uv)w. 
+    '''
+    assert source.len >= 3 and source.right.len >= 2, "Cannot apply an \\alpha to " + source.expression
     target_left = source.left.tensor(source.right.left)
     target_right = source.right.right
     target = target_left.tensor(target_right)                
     return target 
 
+'''
+Parameters
+----------
+source : BinaryWord
+alpha_expr: string
+
+Returns
+----------
+target : BinaryWord
+'''
 def target_of_alpha(source, alpha_expr):
+    ''' Given a binary word source and an alpha arrow with domain source, 
+        target_of_alpha returns the codomain (a binary word) of the alpha arrow.
+    '''
     if alpha_expr == "\\Alpha":
         return pure_alpha_arrow(source)
     elif alpha_expr[:2] == "1(":
@@ -409,19 +458,46 @@ def target_of_alpha(source, alpha_expr):
         return target_of_alpha(source.left, alpha_expr[1*r_len:-2*r_len]).tensor(source.right)
 
 
-# Input: two binary words.
-# Outpit: lists of paths. 
-# arrow = AlphaArrow(source, path_target, path_expr)
+'''
+Parameters
+----------
+source : BinaryWord
+
+Returns
+----------
+all_alpha_paths : list
+'''
 def alpha_paths(source):
+    ''' Returns a list consisting of all alpha arrows 
+        with domain source. The list consists of tuples of the form 
+        (alpha expression, domain, codomain).
+    '''
     all_alpha_paths = []
-    for path_expr in alpha_expressions(source):
+    for path_expr in alpha_expressions(source): # we access 
         path_target = target_of_alpha(source, path_expr)
         path = (path_expr, source, path_target)
         all_alpha_paths.append(path)
     return all_alpha_paths
 
+'''
+Parameters
+----------
+n : int
 
+Returns
+----------
+paths_dict : list
+'''
 def alpha_paths_on_n(n):
+    ''' Returns a dictionary of the following form. 
+        dict = {
+            "word_1_of_length_n" = {
+                "expression_of_alpha_arrow_with_domain_word_1" = alpha_arrow
+                ...
+            }
+            ...
+        }
+    '''
     paths_dict = {}
     for word_len_n in n_binary_words(n):
         paths_dict[word_len_n.expression] = {}  
@@ -430,7 +506,34 @@ def alpha_paths_on_n(n):
             paths_dict[word_len_n.expression][arrow.expression] = arrow
     return paths_dict
 
-def word_data_to_json(n):   
+'''
+Parameters
+----------
+n : int
+
+Returns
+----------
+int, int 
+'''
+def nth_associahedron(n):   
+    ''' Given an integer n, computes the nth associahedron. This is done by creating a .json file in the local directory of the following form.
+        {
+            "nodes":[
+                {"id" : "word_1_of_length_n_expression"
+                 "name": "word_1_of_length_n_expression"
+                },
+                {"id" : "word_2_of_length_n_expression"
+                 "name": "word_2_of_length_n_expression"
+                },
+                ...
+            ]
+            "links":[
+                {"source":word_1_of_length_n, "target": codomain_of_alpha_arrow_with_domain_word_1},
+                ...
+            ]
+        }  
+        The integer output of the function tells us the number of vertices and edges of the associahedron.
+    '''
     dict = {} 
     words = []
     paths = []

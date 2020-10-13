@@ -1,0 +1,91 @@
+<head>
+    <style> body { margin: 0; }
+    .graph-info-msg {
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    color: rgb(97, 177, 252);
+    opacity: 1;
+    font-size: 22px;
+    position: absolute;
+    font-family: Sans-serif;
+    }
+    </style>
+    
+    <script src="//unpkg.com/dat.gui"></script>
+    <script src="//unpkg.com/3d-force-graph"></script>
+  </head>
+  
+  <body>
+    <div id="3d-graph"></div>
+  
+    <script>
+    const highlightNodes = new Set();
+    const showAnimation = false;
+    const showArrowDirection = false;
+    const Graph = ForceGraph3D()
+        (document.getElementById('3d-graph'))
+            .jsonUrl('binary_words_of_'+"4"+'.json')
+            .nodeLabel('id')
+            // .graphData(gData)
+            .nodeRelSize(20)
+            .nodeOpacity(1)
+            .nodeLabel(node => node.name)
+            .nodeResolution(20)
+            .linkOpacity(0.9)
+            .linkWidth(5)  
+            .linkColor(link=>"rgba(0,0,0,1)")
+            // .linkDirectionalArrowLength(20)
+            // .linkDirectionalArrowRelPos(1)
+            .nodeColor(node => "rgb(114, 143, 255)")
+            .backgroundColor("#ffffff")
+            .onNodeDragEnd(node => {
+                node.fx = node.x;
+                node.fy = node.y;
+                node.fz = node.z;
+            });
+    Graph.nodeLabel(d => `<span style=
+    "color: rgb(0, 0, 0); lack">${d.name}</span>`)
+    // Shows the direction of the arrows. False by default.
+    if(showArrowDirection){
+        Graph.linkDirectionalArrowLength(20)
+        Graph.linkDirectionalArrowRelPos(1)
+    }
+
+    // Disables interaction and enables rotation of the associahedron.
+    // Set to false by default.
+    if(showAnimation){
+        const distance = 1400;
+        Graph.enableNodeDrag(false)
+        Graph.enableNavigationControls(false)
+        Graph.showNavInfo(false)
+        Graph.cameraPosition({ z: distance })
+        let angle = 0;
+        setInterval(() => {
+        Graph.cameraPosition({
+            x: distance * Math.sin(angle),
+            z: distance * Math.cos(angle)});
+            angle += Math.PI / 700;
+            }, 10)
+    }
+
+    // Choice of force + repulsion strength
+    Graph.d3Force('charge').strength(-1500);
+
+    // Define GUI to control associahedron of choice
+    const Settings = function() {
+        this.K_n = 4;
+    };
+    const settings = new Settings();
+    const gui = new dat.GUI();
+    const associahedronDimension = gui.add(settings, 'K_n', 1, 10).step(1);
+    // Upon change, change the .json file and resize the camera to fit new objects
+    associahedronDimension.onChange(function updateAssociahedron(n) {
+        Graph.jsonUrl('binary_words_of_'+ n.toString() +'.json');
+        Graph.refresh();
+        Graph.zoomToFit(0, 10, node => true);
+    });
+
+        
+    </script>
+  </body>
