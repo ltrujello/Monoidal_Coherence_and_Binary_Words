@@ -1,6 +1,10 @@
 {
     "nodes": [
-      {"id": "Myriel", "name":"xx"}
+    {
+        "id": "xx",
+        "name":"xx",
+         "img": "xx.jpg"
+    }
     ],
     "links":[
     ]

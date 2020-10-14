@@ -3,10 +3,10 @@ import subprocess
 from binary_word import n_binary_words
 
 def gen_symbol(word):
-    word_expr = esc_pars(word.expression)
+    word_expr = word.expression
     n = word.len
     output_string =\
-    "\\documentclass[border=5pt]{standalone}\n"\
+    "\\documentclass[border=0.7pt]{standalone}\n"\
     +"\\begin{document}\n"\
     +"$" + word_expr + "$" + "\n"\
     +"\\end{document}"
@@ -42,13 +42,13 @@ def esc_pars(word_expression):
     return bash_acceptable
 
 # To dynamically create the .tex files
-# for n in range(1,11):
-#     for word in n_binary_words(n):
-#         gen_symbol(word.expression)
+for n in range(1,8):
+    for word in n_binary_words(n):
+        gen_symbol(word)
 
 # To dynamically create the pdfs and convert to pdfs
 # Warning: for the larger words, this takes a huge amount of time memory
-for n in range(5,8):
+for n in range(1,8):
     for word in n_binary_words(n):
         compile_and_convert(word)
 
