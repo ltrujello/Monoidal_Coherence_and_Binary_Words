@@ -1,5 +1,9 @@
 <head>
-    <style> body { margin: 0; }
+    <link rel="stylesheet" href="css/cmun-serif.css"></link>
+    <style> 
+    body {
+      font-family: "Computer Modern Serif", serif;
+    }
     .graph-info-msg {
     top: 50%;
     width: 100%;
@@ -8,18 +12,40 @@
     opacity: 1;
     font-size: 22px;
     position: absolute;
-    font-family: Sans-serif;
+    }
+    .wrapper {
+        position: relative;
+        }
+    #info{
+    position: absolute;
+    top: 0;
+    left:1em;
+    right: 0;
     }
     </style>
     <script src="//unpkg.com/three"></script>
-    <script src="//unpkg.com/dat.gui"></script>
+    <script src="https://unpkg.com/dat.gui@0.7.7/build/dat.gui.js"></script>
     <script src="//unpkg.com/3d-force-graph"></script>
   </head>
   
   <body>
-    <div id="3d-graph"></div>
-  
+    <div class = "wrapper">
+        <div id="3d-graph"></div>
+        <div id="info">
+            <div id = "div1">
+                Vertices: 14 Edges: 21
+            </div>
+    </div>
+    
     <script>
+    const verts = [1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862]; //No reason to constantly calculate factorials.
+    const edges = [0, 0, 1, 5, 21, 84, 330, 1287, 5005, 19448]
+    function textBox(n) {
+        // updates the graph info
+        num_nodes = verts[n]
+        num_links = edges[n]
+        document.getElementById("div1").innerHTML = "Vertices: " + num_nodes.toString() + " Edges: " + num_links.toString();
+    }
     const showAnimation = false;
     const showArrowDirection = false;
     const Graph = ForceGraph3D()
@@ -75,11 +101,14 @@
     const gui = new dat.GUI();
     gui.add(settings, 'explode');
     const associahedronDimension = gui.add(settings, 'K_n', 1, 10).step(1) // Adds the bar which controls which associahedron is present
-    associahedronDimension.onChange(function updateAssociahedron(n) { // Upon change, change the .json file and resize the camera to fit new objects
-        Graph.jsonUrl('binary_words_of_'+ n.toString() +'.json');
-        Graph.refresh();
-        Graph.zoomToFit(0, 10, node => true);
-    });
+    associahedronDimension.onFinishChange(
+        function updateAssociahedron(n) { // Upon change, change the .json file and resize the camera to fit new objects
+            Graph.jsonUrl('binary_words_of_'+ n.toString() +'.json');
+            textBox(n-1);
+            console.log(Graph.graphData()["nodes"].length)
+            Graph.zoomToFit(1000, 50);
+        }
+    );
     // Option to show or suppress parenthesizations
     gui.add(settings, 'BinaryWords').onChange(function (showBinaryWords) {
         if(settings.showVertices){
@@ -156,12 +185,10 @@
         else if(Graph.jsonUrl() == "binary_words_of_7.json"){
             sprite.scale.set(140, 20);
         }
-        // else if(Graph.jsonUrl == "binary_words_of_7.json"){
-        //     sprite.scale.set(140, 30);
-        // }
         obj.add(sprite);
         return obj;
         });
     }
+
     </script>
   </body>
