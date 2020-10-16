@@ -4,21 +4,21 @@
     body {
       font-family: "Computer Modern Serif", serif;
     }
-    .graph-info-msg {
-    top: 50%;
-    width: 100%;
-    text-align: center;
-    color: rgb(97, 177, 252);
-    opacity: 1;
-    font-size: 22px;
-    position: absolute;
+    .graph-info-msg{
+        top: 50%;
+        width: 100%;
+        text-align: center;
+        color: rgb(97, 177, 252);
+        opacity: 1;
+        font-size: 22px;
+        position: absolute;
     }
     .wrapper {
         position: relative;
-        }
+    }
     #info{
     position: absolute;
-    top: 0;
+    top: 0.5em;
     left:1em;
     right: 0;
     }
@@ -32,25 +32,23 @@
     <div class = "wrapper">
         <div id="3d-graph"></div>
         <div id="info">
-            <div id = "div1">
-                Vertices: 14 Edges: 21
-            </div>
+            <div id = "graph-data">Vertices: 14. Edges: 21.</div>
+        </div>
     </div>
     
     <script>
     const verts = [1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862]; //No reason to constantly calculate factorials.
-    const edges = [0, 0, 1, 5, 21, 84, 330, 1287, 5005, 19448]
+    const edges = [0, 0, 1, 5, 21, 84, 330, 1287, 5005, 19448];
+    let init = 5;
     function textBox(n) {
         // updates the graph info
-        num_nodes = verts[n]
-        num_links = edges[n]
-        document.getElementById("div1").innerHTML = "Vertices: " + num_nodes.toString() + " Edges: " + num_links.toString();
+        num_nodes = verts[n];
+        num_links = edges[n];
+        document.getElementById("graph-data").innerHTML = "Vertices: " + num_nodes.toString() + ". Edges: " + num_links.toString() + ".";
     }
-    const showAnimation = false;
-    const showArrowDirection = false;
     const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
-            .jsonUrl('binary_words_of_5'+'.json') // Default associahedron
+            .jsonUrl('binary_words_of_'+ init.toString() + '.json') // Default associahedron
             .nodeLabel('id')
             .nodeLabel(node => node.name)
             .nodeThreeObject(function(){})
@@ -69,46 +67,41 @@
                 node.fz = node.z;
             })
     Graph.d3Force('charge').strength(-500) // Choice of force + repulsion strength
-    if(showAnimation){// Disables interaction and enables rotation of the associahedron.
-        const distance = 1400;
-        Graph.enableNodeDrag(false)
-        Graph.enableNavigationControls(false)
-        Graph.showNavInfo(false)
-        Graph.cameraPosition({ z: distance })
-        let angle = 0;
-        setInterval(() => {
-        Graph.cameraPosition({
-            x: distance * Math.sin(angle),
-            z: distance * Math.cos(angle)});
-            angle += Math.PI / 700;
-            }, 10)
-    }
-
     // Define GUI to presentation of associahedron 
     const settings = {
-        K_n : 5,
+        K_n : init,
         showVertices: true,
         BinaryWords : false,
         Arrows : false,
-        What_is_this: function() 
-        { 
-            window.location = "https://www.justgooddesign.com";
-        },
-        explode: function () {
-          alert('Bang!');
-        },
     };
     const gui = new dat.GUI();
-    gui.add(settings, 'explode');
-    const associahedronDimension = gui.add(settings, 'K_n', 1, 10).step(1) // Adds the bar which controls which associahedron is present
-    associahedronDimension.onFinishChange(
-        function updateAssociahedron(n) { // Upon change, change the .json file and resize the camera to fit new objects
-            Graph.jsonUrl('binary_words_of_'+ n.toString() +'.json');
-            textBox(n-1);
-            console.log(Graph.graphData()["nodes"].length)
-            Graph.zoomToFit(1000, 50);
+    // let zoomUpdate = false; 
+    // Configure the GUI
+    let change = init;
+    gui.add(settings, 'K_n', 1, 10).step(1).onFinishChange( function updateAssociahedron(n) { // Upon change, change the .json file and resize the camera to fit new objects
+            if(change != n){
+                change = n;
+                Graph.jsonUrl('binary_words_of_'+ n.toString() +'.json');
+                textBox(n-1);
+                zoomUpdate(n);
+                console.log(Graph.graphData()["nodes"].length);
+            }
         }
     );
+    // Updating the zoom is a bit tricky. Here's an efficient workaround
+    function zoomUpdate(n){
+        setTimeout(() => {
+            if (n < 3){
+                Graph.zoomToFit(1000, 300);
+            }
+            else if (n == 3){
+                Graph.zoomToFit(1000, 200);
+            }
+            else{
+                Graph.zoomToFit(1000, 100);
+            }
+        }, 250)
+    };
     // Option to show or suppress parenthesizations
     gui.add(settings, 'BinaryWords').onChange(function (showBinaryWords) {
         if(settings.showVertices){
