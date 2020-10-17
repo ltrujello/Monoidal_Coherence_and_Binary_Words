@@ -10,13 +10,15 @@
     <div class = "wrapper">
         <div id="3d-graph"></div>
             <div id="info">
-                <div id = "graph-data">Vertices: 14. Edges: 21.</div>
+                <div id = "graph-data">
+                </div>
             </div>
     </div>
     <script>
     const verts = [1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862]; //No reason to constantly calculate factorials.
     const edges = [0, 0, 1, 5, 21, 84, 330, 1287, 5005, 19448];
     let init = 5;
+    textBox(init)
     function textBox(n) {
         // updates the graph info in left corner
         num_nodes = verts[n-1];
