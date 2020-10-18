@@ -1,24 +1,25 @@
 body {
     font-family: "Computer Modern Serif", serif;
     margin:0;
-  }
-.graph-info-msg{
-    top: 50%;
+}
+
+.scene-nav-info {
+    bottom: 5px;
     width: 100%;
     text-align: center;
-    color: rgb(97, 177, 252);
-    opacity: 1;
-    font-size: 22px;
-    position: absolute;
+    color: rgb(0, 0, 0) !important;
+    opacity: 0.7;
+    font-size: 15px !important;
 }
+  
 .wrapper {
     position: relative;
 }
 #info{
-position: absolute;
-top: 0.5em;
-left:1em;
-right: 0;
+    position: absolute;
+    top: 0.5em;
+    left:1em;
+    right: 0;
 }
 .dg .cr.boolean {
     border-left: 3px solid #fa003e !important

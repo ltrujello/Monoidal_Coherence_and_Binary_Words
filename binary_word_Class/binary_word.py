@@ -513,7 +513,7 @@ n : int
 
 Returns
 ----------
-int, int 
+int 
 '''
 def nth_associahedron(n):   
     ''' Given an integer n, computes the nth associahedron. This is done by creating a .json file in the local directory of the following form.

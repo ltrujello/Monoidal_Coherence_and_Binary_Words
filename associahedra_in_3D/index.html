@@ -1,6 +1,7 @@
 <head>
     <link rel = "stylesheet" href="css/font/cmun-serif.css"></link>
     <link rel = "stylesheet" href="css/main.css"></link>
+    <link rel = "shortcut icon" href="#"> 
     <script src="//unpkg.com/three"></script>
     <script src="https://unpkg.com/dat.gui@0.7.7/build/dat.gui.js"></script>
     <script src="//unpkg.com/3d-force-graph"></script>
@@ -9,10 +10,13 @@
   <body>
     <div class = "wrapper">
         <div id="3d-graph"></div>
-            <div id="info">
-                <div id = "graph-data">
-                </div>
+        <div id="info">
+            <div>
+                <img id = "K_n" src="../imgs/K_n/k_5.jpg" style="width:35px"/>
             </div>
+            <div id = "graph-data">
+            </div> 
+        </div>
     </div>
     <script>
     const verts = [1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862]; //No reason to constantly calculate factorials.
@@ -75,6 +79,7 @@
                 vertexControl();
                 textBox(n);
                 zoomUpdate(n);
+                document.getElementById("K_n").src = "../imgs/K_n/k_" + n.toString() + ".jpg";
                 }
             );
         }
@@ -143,7 +148,7 @@
             new THREE.MeshBasicMaterial({ depthWrite: false, transparent: true, opacity: 0 })
             );
             // add img sprite as child
-            const imgTexture = new THREE.TextureLoader().load(`./imgs/${item}`);
+            const imgTexture = new THREE.TextureLoader().load(`./imgs/words/${item}`);
             const material = new THREE.SpriteMaterial({ map: imgTexture });
             const sprite = node.ownSpriteObj = new THREE.Sprite(material);
             // we need to fix the resolution on a case by case basis
@@ -165,7 +170,7 @@
             if(Graph.wordLen == 6){
                 sprite.scale.set(120, 20);
             }
-            else if(Graph.wordLen == 7){
+            else if (Graph.wordLen == 7){
                 sprite.scale.set(140, 20);
             }
             })

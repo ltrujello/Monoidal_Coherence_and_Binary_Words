@@ -1,7 +1,7 @@
 # How to use.
 # 1. Open up terminal and cd to this file directory.
-# To build the pentagon with objects A,B,C,D 
-#   enter "python3 pentagon_generator.py A B C D".
+# To build the associahedron with objects A,B,C,D,E
+# enter "python3 pentagon_generator.py A B C D E".
 # The file will run, print "meow," and save the .tex in the file directory.
 
 
@@ -201,7 +201,7 @@ def main(args):
     + "     \\end{{tikzcd}}\n"\
 + "\\end{{center}}"
 
-    file = open('/Users/luketrujillo/Desktop/Senior_year/Senior_thesis/thesis_versions/thesis_sept7/K5_generator/k5'\
+    file = open('k5'\
     + '_'+ args.A + '_' + args.B + '_' + args.C + '_' + args.D + '_' + args.E +'.tex', 'w')
     file.write(output_string.format(A=args.A, B=args.B, C=args.C, D=args.D, E =args.E ))
     file.close()
