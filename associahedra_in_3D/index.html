@@ -12,7 +12,7 @@
         <div id="3d-graph"></div>
         <div id="info">
             <div>
-                <img id = "K_n" src="/imgs/K_n/k_5.jpg" style="width:35px"/>
+                <img id = "K_n" src="./imgs/K_n/k_5.jpg" style="width:35px"/>
             </div>
             <div id = "graph-data">
             </div> 
@@ -31,7 +31,7 @@
     }
     const Graph = ForceGraph3D()
         (document.getElementById('3d-graph'))
-            .jsonUrl('json/binary_words_of_'+ init.toString() + '.json') // Default associahedron
+            .jsonUrl('./json/binary_words_of_'+ init.toString() + '.json') // Default associahedron
             .nodeLabel('id')
             .nodeLabel(node => node.name)
             .nodeThreeObject(function(){})
@@ -69,7 +69,7 @@
             }
             Graph.wordLen = n;
             fileLoader.load(
-            'json/binary_words_of_'+ n.toString() +'.json',
+            './json/binary_words_of_'+ n.toString() +'.json',
             // Callback for when .json file has finished loading
             function(jsonFile) {
                 // Convert response text to JSON object
@@ -79,7 +79,7 @@
                 vertexControl();
                 textBox(n);
                 zoomUpdate(n);
-                document.getElementById("K_n").src = "/imgs/K_n/k_" + n.toString() + ".jpg";
+                document.getElementById("K_n").src = "./imgs/K_n/k_" + n.toString() + ".jpg";
                 }
             );
         }
