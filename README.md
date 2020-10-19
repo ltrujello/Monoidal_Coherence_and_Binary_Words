@@ -1,11 +1,12 @@
 # Monoidal_Coherence_and_Binary_Words
 Implementation of the category of binary words in Python for its application to Mac Lane's Coherence Theorem for monoidal categories. There are interesting combinatorial and geometric properties of this category, and due to its recursive nature, it can be programmed, making investigation of such properties much easier and efficient.
 
-As an application of the Python module on binary words, I made a simple app that computes and visualizes the [three dimensional projections of the first ten associahedrons](https://ltrujello.github.io/Monoidal_Coherence_and_Binary_Words/associahedra_in_3D/), or Stasheff Polytopes as they are sometimes called. I imagine this has been done before, but I cannot find anything on the internet past K_6. 
+As an application of the Python module on binary words, I made a simple app that computes and visualizes the three dimensional projections of the first ten associahedrons, or Stasheff Polytopes as they are sometimes called. I imagine this has been done before, but I cannot find anything on the internet past K_6. 
 
 To make this, I used [3d-force-graph](https://github.com/vasturiano/3d-force-graph) and [dat.gui](https://github.com/dataarts/dat.gui).
 
 ## The App
+[Click here to run the application](https://ltrujello.github.io/Monoidal_Coherence_and_Binary_Words/associahedra_in_3D/).
 With the app you can drag and drop the vertices, hover over vertices to obtain their binary word representation, zoom in and out, and rotate the figure itself. 
 
 The app also has four basic options to change the presentation of the figure. 
@@ -15,4 +16,6 @@ The app also has four basic options to change the presentation of the figure.
 
 * **Arrows**: Check this if you want to see the arrows. Imagining the vertices as the binary words, the edges can be thought of as "shift operations" which make a single change of paranthesization, possibly within some more complicated expression. 
 
-* **Show vertices**: Check this if you want to ignore the vertices all together to just see the shape of the diagram itself. 
+* **Show vertices**: Check this if you want to see the vertices; either the binary words or just the nodes. If this is unchecked, the vertices will be hidden. 
+
+To read more about the associahedra, check out this nice [category cafe post](https://golem.ph.utexas.edu/category/2018/01/more_secrets_of_the_associahed.html). 
