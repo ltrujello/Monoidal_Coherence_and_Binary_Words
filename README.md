@@ -1,6 +1,10 @@
 # Monoidal_Coherence_and_Binary_Words
 Implementation of the category of binary words in Python for its application to Mac Lane's Coherence Theorem for monoidal categories. There are interesting combinatorial and geometric properties of this category, and due to its recursive nature, it can be programmed, making investigation of such properties much easier and efficient.
 
+Here's how it works and some basic things it can do that would otherwise take a while to do manually on paper. What's key is that the words recursively carry the substructure of the left and right components, and their left and right components... and so on.
+
+<img src="https://ltrujello.github.io/Monoidal_Coherence_and_Binary_Words/binary_word_Class/gif/demo.gif" height="250px" />
+
 As an application of the Python module on binary words, I made a simple app that computes and visualizes the three dimensional projections of the first ten associahedrons, or Stasheff Polytopes as they are sometimes called. I imagine this has been done before, but I cannot find anything on the internet past K_6. 
 
 To make this, I used [3d-force-graph](https://github.com/vasturiano/3d-force-graph) and [dat.gui](https://github.com/dataarts/dat.gui).
