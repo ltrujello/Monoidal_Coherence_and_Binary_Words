@@ -3,7 +3,7 @@ Implementation of the category of binary words in Python for its application to 
 
 Here's how it works and some basic things it can do that would otherwise take a while to do manually on paper. What's key is that the words recursively carry the substructure of the left and right components, and their left and right components... and so on.
 
-<img src="https://ltrujello.github.io/Monoidal_Coherence_and_Binary_Words/binary_word_Class/gif/demo.gif" height="250px" />
+<img src="https://ltrujello.github.io/Monoidal_Coherence_and_Binary_Words/binary_word_Class/gif/demo.gif" height="300px" />
 
 As an application of the Python module on binary words, I made a simple app that computes and visualizes the three dimensional projections of the first ten associahedrons, or Stasheff Polytopes as they are sometimes called. I imagine this has been done before, but I cannot find anything on the internet past K_6. 
 
