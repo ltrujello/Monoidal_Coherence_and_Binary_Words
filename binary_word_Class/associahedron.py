@@ -1,5 +1,5 @@
 import json
-import binary_word
+from binary_word import *
 '''
 Parameters
 ----------

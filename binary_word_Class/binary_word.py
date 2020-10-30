@@ -26,18 +26,19 @@ class BinaryWord:
         1. The rank of x is 0.
         2. The rank of (u)(v) is rank(u) + rank(v) + len(v) - 1.
     '''
-    def __init__(self, expression="x"): 
+    def __init__(self, expression="x"):
+        assert is_matched(expression), "Parentheses are mismatched"
         self.expression = expression # save the binary word expression
-        self.form = self.add_formal_pars() # also save the formalized expression
+        self.x_expression = swap_letters_for_x(expression)
         # This is our base case. 
-        if expression == "x": 
+        if self.x_expression == "x": 
             self.left = None
             self.right = None
             self.form = "(x)"
             self.len = 1
             self.idlen= 0
             self.rank = 0
-        elif expression == "e": 
+        elif self.x_expression == "e": 
             self.left = None
             self.right = None
             self.form = "(e)"
@@ -45,14 +46,15 @@ class BinaryWord:
             self.idlen = 1
             self.rank = 0
         # If we're not at out base case, then split the word.
-        else:                    
-            left, right = split_binary_word(self.expression) #we split the binary word
+        else:
+            left, right = swap_x_for_letters(self.x_expression, self.expression, True) #we split the binary word, then add the letters back
             self.left = BinaryWord(left) 
             self.right = BinaryWord(right)
             self.len = self.left.len + self.right.len
             self.idlen = self.left.idlen + self.right.idlen 
             self.rank = self.left.rank + self.right.rank + self.right.len + self.right.idlen - 1
             self.full_rank = self.rank + self.idlen
+        self.form = self.add_formal_pars() # also save the formalized expression. Note this needs to execute at the end, not earlier.   
     '''
     Parameters
     ----------
@@ -63,11 +65,11 @@ class BinaryWord:
     ----------
     product: BinaryWord
     '''
-    def tensor(self, right):
-                '''Compute the tensor product of two binary words.
+    def tensor(self, right_word):
+        '''Compute the tensor product of two binary words.
         '''
-        left= self.expression 
-        right = right.expression 
+        left= self.x_expression 
+        right = right_word.x_expression 
 
         # If there are redundant parentheses, remove them, because we may add parentheses later 
         if is_surrounded(left):
@@ -80,28 +82,33 @@ class BinaryWord:
         parentheses on individual x's.
         '''
         if left == "x" and right ==  "x":
-            product = BinaryWord( left + right ) #no parentheses
+            prod_expression =  left + right  #no parentheses
 
-        if left == "e" and right ==  "e":
-            product = BinaryWord( left + right ) #no parentheses
+        elif left == "e" and right ==  "e":
+            prod_expression =  left + right  #no parentheses
         
         # If this is true, then the right is not "x" 
         elif left == "x":
-            product = BinaryWord( left + "("+ right +")") #just parentheses for the right
+            prod_expression =  left + "("+ right +")" #just parentheses for the right
+
         # If this is true, then the left is not "x"
         elif right == "x":
-            product = BinaryWord("("+ left +")" + right)  #just parentheses for the left
-        
+            prod_expression = "("+ left +")" + right  #just parentheses for the left
+
         # If this is true, then the right is not "e" 
         elif left == "e":
-            product = BinaryWord( left + "("+ right +")") #just parentheses for the right
+            prod_expression =  left + "("+ right +")" #just parentheses for the right
+
         # If this is true, then the left is not "e"
         elif right == "e":
-            product = BinaryWord("("+ left +")" + right)  #just parentheses for the left
+            prod_expression = "("+ left +")" + right  #just parentheses for the left
 
         # in all other cases, we do want to produce an expression of the form (...)(---).
         else:
-            product = BinaryWord( "("+ left + ")" + "("+ right +")") #parentheses for left and right
+            prod_expression =  "("+ left + ")" + "("+ right +")" #parentheses for left and right
+        
+        final_expression = swap_x_for_letters(prod_expression, self.expression + right_word.expression)
+        product = BinaryWord(final_expression)
         return product
 
 
@@ -118,17 +125,17 @@ class BinaryWord:
         '''adds the formal parentheses to a binary word expression. E.g., x(xx) => (x)((x)(x))
         '''
         # Our base case is x or xx, since we expect the user to write x(xx), (x(xx))x, etc.
-        if self.expression == "x": 
+        if self.x_expression == "x": 
             return "(x)"
-        elif self.expression == "xx":
+        elif self.x_expression == "xx":
             return "(x)(x)"
-        elif self.expression == "e": 
+        elif self.x_expression == "e": 
             return "(e)"
-        elif self.expression == "ee":
+        elif self.x_expression == "ee":
             return "(e)(e)"
-        elif self.expression == "xe":
+        elif self.x_expression == "xe":
             return "(x)(e)"
-        elif self.expression == "ex":
+        elif self.x_expression == "ex":
             return "(e)(x)"
         # If we are not at our base case, we split the binary word into its left and right components and recurse.
         else:
@@ -146,22 +153,62 @@ class BinaryWord:
 '''
 Parameters
 ----------
-word : string
+letter_expression : string
 
 Returns
 ----------
 swapped_word : string
 '''
-def swap_letters_for_x(word_expression):
+def swap_letters_for_x(letter_expression):
     '''Replaces every letter in an expression with 'x'. This allows the user  
     the convenience to write whatever they want, e.g. A(BC), while behind the scenes, we work with x, e.g. x(xx).  
+
+    Note: I will be interpreted as an identity.
     '''
-    word_list = list(word_expression)
+    word_list = list(letter_expression)
     for ind in range(0, len(word_list)):
-        if word_list[ind] != "(" and word_list[ind] !=  ")" and word_list[ind] != 'x':
-            word_list[ind] = 'x'
-    new_expression = "".join(word_list)
-    return new_expression
+        if word_list[ind] != "(" and word_list[ind] !=  ")":
+            if word_list[ind] == 'I':
+                word_list[ind] = 'e'
+            else:
+                word_list[ind] = 'x'
+    swapped_word = "".join(word_list)
+    return swapped_word
+
+'''
+Parameters
+----------
+x_expression : string
+letter_expression: string
+pos : int
+
+Returns
+----------
+swapped_word : string
+'''
+def swap_x_for_letters(x_expression, letter_expression, left_right=False):
+    print(x_expression, letter_expression)
+    if left_right == True:
+        left, right = split_binary_word(x_expression)
+        num_left_xs = left.count("x")
+        j = 0
+        pos = 0
+        for ind in range(0, len(x_expression)):
+            if x_expression[j] == "x":
+                j += 1
+            elif j == num_left_xs:
+                pos = ind
+                break
+        return swap_x_for_letters(left, letter_expression), swap_x_for_letters(right, letter_expression[pos:])
+    letters = letter_expression.replace("(", "").replace(")","") # removes parentheses
+    ith_letter = 0
+    word_list = list(x_expression)
+    for ind in range(0, len(word_list)):
+        if word_list[ind] != "(" and word_list[ind] !=  ")":
+            word_list[ind] = letters[ith_letter]
+            ith_letter += 1
+    swapped_word = "".join(word_list)
+    return swapped_word
             
 '''         
 Parameters
@@ -268,7 +315,7 @@ left, right : string
 Ex: str="x(xx)" outputs "x", "xx".
 '''
 def split_binary_word(word_expression):
-''' Finds and returns the left and right components. 
+    ''' Finds and returns the left and right components. 
     '''
     # ----------- base cases ----------
     if word_expression == "":
