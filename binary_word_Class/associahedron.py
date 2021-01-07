@@ -47,7 +47,7 @@ def alpha_expressions(source):
         lefts = source.left.len  
         rights = source.right.len
         if rights > 1: # then we can apply an \alpha, so add it to the list
-            paths += ["\\Alpha"]
+            paths += ["\\Alpha"]    
         if rights == 1: # if the right component is trivial, look at the left component.
             paths += ["(" + expr + ")1" for expr in alpha_expressions(source.left)]
         if lefts == 1: # if the left component is trivial, look at the right. 

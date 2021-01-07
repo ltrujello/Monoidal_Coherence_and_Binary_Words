@@ -12,7 +12,7 @@ class AlphaArrow:
         1. \\alpha is an alpha arrow
         2. 1_u \otimes \\beta: u \otimes v --> u \otimes v' and \\beta \otimes 1_v: u \otimes v --> u' \otimes v 
         are both alpha arrows if \\beta is already an alpha arrow.
-    '''
+    ''' 
     def __init__(self, source, target, expression="1"): 
         self.expression = expression
         self.source = source
