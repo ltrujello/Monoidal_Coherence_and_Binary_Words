@@ -1,4 +1,7 @@
 # Monoidal_Coherence_and_Binary_Words
+
+As this work was part of my senior thesis, I gave a [final presentation](https://ltrujello.github.io/Monoidal_Coherence_and_Binary_Words/thesis_presentation.pdf) which offers background on what this is about.
+
 Implementation of the category of binary words in Python for its application to Mac Lane's Coherence Theorem for monoidal categories. There are interesting combinatorial and geometric properties of this category, and due to its recursive nature, it can be programmed, making investigation of such properties much easier and efficient.
 
 Here's how it works and some basic things it can do that would otherwise take a while to do manually on paper. What's key is that the words recursively carry the substructure of the left and right components, and their left and right components... and so on.
